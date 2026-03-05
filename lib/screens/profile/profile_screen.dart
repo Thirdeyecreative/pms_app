@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dashboard_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../models/employee_model.dart';
+
 import '../../models/extended_models.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -28,17 +30,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final emp = dash.employee;
       if (emp == null) {
+        final theme = Theme.of(context);
         return Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.person_off_rounded,
-                color: AppColors.textMuted.withAlpha(80), size: 48),
+                color: theme.hintColor.withAlpha(80), size: 48),
             const SizedBox(height: 12),
             Text('Profile unavailable',
                 style:
-                    GoogleFonts.inter(fontSize: 15, color: AppColors.textMuted)),
+                    GoogleFonts.inter(fontSize: 15, color: theme.hintColor)),
           ]),
         );
       }
+
 
       return ListView(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 100),
@@ -47,6 +51,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
             child: Column(children: [
+              _SettingsCard(),
+              const SizedBox(height: 14),
               _EmploymentCard(emp: emp),
               const SizedBox(height: 14),
               _IdentificationCard(emp: emp),
@@ -63,6 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       );
+
     });
   }
 
@@ -77,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.glassBg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(builder: (ctx, setSS) {
@@ -90,24 +97,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                    color: AppColors.glassBorder,
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(2)),
               ),
               const SizedBox(height: 16),
               Text('Edit Profile',
                   style: GoogleFonts.inter(
                       fontSize: 18, fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
+                      color: Theme.of(context).textTheme.titleLarge?.color)),
               const SizedBox(height: 20),
-              _editField(phoneCtrl, 'Phone Number', Icons.phone_rounded),
+              _editField(ctx, phoneCtrl, 'Phone Number', Icons.phone_rounded),
               const SizedBox(height: 12),
-              _editField(currentAddrCtrl, 'Current Address', Icons.location_on_rounded, maxLines: 2),
+              _editField(ctx, currentAddrCtrl, 'Current Address', Icons.location_on_rounded, maxLines: 2),
               const SizedBox(height: 12),
-              _editField(permanentAddrCtrl, 'Permanent Address', Icons.home_rounded, maxLines: 2),
+              _editField(ctx, permanentAddrCtrl, 'Permanent Address', Icons.home_rounded, maxLines: 2),
               const SizedBox(height: 12),
-              _editField(panCtrl, 'PAN Number', Icons.credit_card_rounded),
+              _editField(ctx, panCtrl, 'PAN Number', Icons.credit_card_rounded),
               const SizedBox(height: 12),
-              _editField(aadhaarCtrl, 'Aadhaar Number', Icons.badge_rounded),
+              _editField(ctx, aadhaarCtrl, 'Aadhaar Number', Icons.badge_rounded),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -162,33 +169,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _editField(TextEditingController ctrl, String label, IconData icon,
+  Widget _editField(BuildContext context, TextEditingController ctrl, String label, IconData icon,
       {int maxLines = 1}) {
+    final theme = Theme.of(context);
     return TextFormField(
       controller: ctrl,
       maxLines: maxLines,
-      style: GoogleFonts.inter(color: AppColors.textPrimary),
+      style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: AppColors.textMuted, size: 18),
-        labelStyle: GoogleFonts.inter(color: AppColors.textMuted),
+        prefixIcon: Icon(icon, color: theme.hintColor, size: 18),
+        labelStyle: GoogleFonts.inter(color: theme.hintColor),
         filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
+        fillColor: theme.inputDecorationTheme.fillColor,
+        border: theme.inputDecorationTheme.border,
+        enabledBorder: theme.inputDecorationTheme.enabledBorder,
+        focusedBorder: theme.inputDecorationTheme.focusedBorder,
       ),
     );
   }
+
 }
 
 class _HeroSection extends StatelessWidget {
@@ -198,13 +198,15 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isActive = emp.status == 1;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primary.withAlpha(28), AppColors.background],
+          colors: [AppColors.primary.withAlpha(28), Theme.of(context).scaffoldBackgroundColor],
         ),
       ),
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
@@ -235,11 +237,12 @@ class _HeroSection extends StatelessWidget {
         const SizedBox(height: 14),
         Text(emp.fullName,
             style: GoogleFonts.inter(
-                fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                fontSize: 22, fontWeight: FontWeight.w800, color: theme.textTheme.titleLarge?.color)),
         const SizedBox(height: 6),
         Text('${emp.designation} • ${emp.departmentName}',
-            style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary),
+            style: GoogleFonts.inter(fontSize: 13, color: theme.textTheme.bodyMedium?.color),
             textAlign: TextAlign.center),
+
         const SizedBox(height: 10),
         // Badges
         Wrap(spacing: 8, children: [
@@ -310,18 +313,20 @@ class _InfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 13, color: AppColors.textMuted),
+      Icon(icon, size: 13, color: theme.hintColor),
       const SizedBox(width: 4),
       ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Text(text,
-            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+            style: GoogleFonts.inter(fontSize: 12, color: theme.textTheme.bodyMedium?.color),
             overflow: TextOverflow.ellipsis),
       ),
     ]);
   }
 }
+
 
 class _EmploymentCard extends StatelessWidget {
   final EmployeeModel emp;
@@ -379,11 +384,12 @@ class _SalaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(children: [
         Padding(
@@ -396,20 +402,20 @@ class _SalaryCard extends StatelessWidget {
                 style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
+                    color: theme.textTheme.titleLarge?.color)),
           ]),
         ),
-        Container(height: 1, color: AppColors.glassBorder),
+        Container(height: 1, color: theme.dividerColor),
         Padding(
           padding: const EdgeInsets.all(16),
           child: salary == null
               ? Row(children: [
                   Icon(Icons.account_balance_wallet_rounded,
-                      color: AppColors.textMuted.withAlpha(80), size: 30),
+                      color: theme.hintColor.withAlpha(80), size: 30),
                   const SizedBox(width: 12),
                   Text('No active salary structure found',
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textMuted)),
+                          fontSize: 13, color: theme.hintColor)),
                 ])
               : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Container(
@@ -425,18 +431,18 @@ class _SalaryCard extends StatelessWidget {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text('Gross Annual Salary',
                           style: GoogleFonts.inter(
-                              fontSize: 11, color: AppColors.textMuted)),
+                              fontSize: 11, color: theme.hintColor)),
                       const SizedBox(height: 4),
                       Text(
                         '₹${NumberFormat('#,##,###').format(salary!.grossSalary.round())}',
                         style: GoogleFonts.inter(
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.primaryLight),
+                            color: AppColors.primary),
                       ),
                       Text(
                         'Effective from: ${_fmtDate(salary!.effectiveFrom) ?? salary!.effectiveFrom}',
-                        style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted),
+                        style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor),
                       ),
                     ]),
                   ),
@@ -445,7 +451,7 @@ class _SalaryCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary)),
+                          color: theme.textTheme.titleMedium?.color)),
                   const SizedBox(height: 8),
                   ...salary!.items
                       .take(showAll ? salary!.items.length : 3)
@@ -455,17 +461,18 @@ class _SalaryCard extends StatelessWidget {
                               Expanded(
                                 child: Text(item.componentName,
                                     style: GoogleFonts.inter(
-                                        fontSize: 13, color: AppColors.textSecondary)),
+                                        fontSize: 13, color: theme.textTheme.bodyMedium?.color)),
                               ),
                               Text(
                                 '₹${NumberFormat('#,##,###').format(item.amount.round())}',
                                 style: GoogleFonts.inter(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary),
+                                    color: theme.textTheme.bodyLarge?.color),
                               ),
                             ]),
                           )),
+
                   if (salary!.items.length > 3)
                     Center(
                       child: TextButton(
@@ -492,11 +499,12 @@ class _CompanyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(children: [
         Padding(
@@ -506,10 +514,10 @@ class _CompanyCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text('Company Details',
                 style: GoogleFonts.inter(
-                    fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                    fontSize: 14, fontWeight: FontWeight.w700, color: theme.textTheme.titleMedium?.color)),
           ]),
         ),
-        Container(height: 1, color: AppColors.glassBorder),
+        Container(height: 1, color: theme.dividerColor),
         Padding(
           padding: const EdgeInsets.all(16),
           child: Row(children: [
@@ -528,20 +536,20 @@ class _CompanyCard extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Joyn People HRM',
                     style: GoogleFonts.inter(
-                        fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                        fontSize: 14, fontWeight: FontWeight.w600, color: theme.textTheme.bodyLarge?.color)),
                 Text('Active Employee',
-                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
+                    style: GoogleFonts.inter(fontSize: 12, color: theme.hintColor)),
               ]),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: theme.dividerColor),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text('Official',
                   style: GoogleFonts.inter(
-                      fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                      fontSize: 11, fontWeight: FontWeight.w600, color: theme.textTheme.bodyMedium?.color)),
             ),
           ]),
         ),
@@ -549,6 +557,7 @@ class _CompanyCard extends StatelessWidget {
     );
   }
 }
+
 
 class _InfoCard extends StatelessWidget {
   final IconData icon;
@@ -559,11 +568,12 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(children: [
         Padding(
@@ -575,10 +585,10 @@ class _InfoCard extends StatelessWidget {
                 style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
+                    color: theme.textTheme.titleMedium?.color)),
           ]),
         ),
-        Container(height: 1, color: AppColors.glassBorder),
+        Container(height: 1, color: theme.dividerColor),
         Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -592,14 +602,14 @@ class _InfoCard extends StatelessWidget {
                       width: 110,
                       child: Text(row['label']!,
                           style: GoogleFonts.inter(
-                              fontSize: 12, color: AppColors.textMuted)),
+                              fontSize: 12, color: theme.hintColor)),
                     ),
                     Expanded(
                       child: Text(row['value']!,
                           style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textPrimary),
+                              color: theme.textTheme.bodyLarge?.color),
                           textAlign: TextAlign.right),
                     ),
                   ],
@@ -608,11 +618,59 @@ class _InfoCard extends StatelessWidget {
                   Container(
                     height: 1,
                     margin: const EdgeInsets.symmetric(vertical: 10),
-                    color: AppColors.glassBorder,
+                    color: theme.dividerColor,
                   ),
               ]);
             }).toList(),
           ),
+        ),
+      ]),
+    );
+  }
+}
+
+
+class _SettingsCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDarkMode;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          child: Row(children: [
+            const Icon(Icons.settings_suggest_rounded,
+                color: AppColors.primaryLight, size: 20),
+            const SizedBox(width: 8),
+            Text('App Settings',
+                style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).textTheme.titleLarge?.color)),
+          ]),
+        ),
+        Container(height: 1, color: Theme.of(context).dividerColor),
+        SwitchListTile(
+          value: isDark,
+          onChanged: (val) => themeProvider.toggleTheme(val),
+          title: Text('Dark Mode',
+              style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).textTheme.bodyLarge?.color)),
+          secondary: Icon(
+            isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+            color: isDark ? AppColors.primaryLight : Colors.orangeAccent,
+            size: 20,
+          ),
+          activeColor: AppColors.primary,
         ),
       ]),
     );
@@ -627,3 +685,4 @@ String? _fmtDate(String? d) {
     return d;
   }
 }
+

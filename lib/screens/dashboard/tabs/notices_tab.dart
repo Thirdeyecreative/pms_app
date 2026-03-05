@@ -19,13 +19,15 @@ class NoticesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notices = dash.announcements;
+    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
         Text('Noticeboard',
             style: GoogleFonts.inter(
                 fontSize: 16, fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleLarge?.color)),
+
         const SizedBox(height: 16),
         if (notices.isEmpty)
           Center(
@@ -33,11 +35,12 @@ class NoticesTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 60),
               child: Column(children: [
                 Icon(Icons.notifications_none_rounded,
-                    color: AppColors.textMuted.withAlpha(80), size: 48),
+                    color: theme.hintColor.withAlpha(80), size: 48),
                 const SizedBox(height: 12),
                 Text('No announcements',
                     style: GoogleFonts.inter(
-                        fontSize: 15, color: AppColors.textMuted)),
+                        fontSize: 15, color: theme.hintColor)),
+
               ]),
             ),
           )
@@ -47,10 +50,11 @@ class NoticesTab extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: theme.cardTheme.color,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: theme.dividerColor),
               ),
+
               child: Column(children: [
                 Container(
                   decoration: BoxDecoration(
@@ -65,7 +69,7 @@ class NoticesTab extends StatelessWidget {
                           style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary)),
+                              color: theme.textTheme.titleMedium?.color)),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -85,7 +89,8 @@ class NoticesTab extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   child: Text(a.message,
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textSecondary)),
+                          fontSize: 13, color: theme.textTheme.bodyMedium?.color)),
+
                 ),
               ]),
             );

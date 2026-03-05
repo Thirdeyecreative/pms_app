@@ -15,6 +15,7 @@ class DocumentsTab extends StatelessWidget {
     final selfDocs = docs.where((d) => d['uploaded_by'] == 'self').toList();
     final adminDocs = docs.where((d) => d['uploaded_by'] == 'admin').toList();
 
+    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
@@ -22,7 +23,8 @@ class DocumentsTab extends StatelessWidget {
             style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleLarge?.color)),
+
         const SizedBox(height: 16),
         _DocSection(title: 'My Uploads', docs: selfDocs, iconColor: AppColors.primary),
         const SizedBox(height: 16),
@@ -41,25 +43,29 @@ class _DocSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
       Text(title,
           style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary)),
+              color: theme.textTheme.titleMedium?.color)),
+
       const SizedBox(height: 10),
       if (docs.isEmpty)
         Container(
           padding: const EdgeInsets.all(20),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(color: theme.dividerColor),
           ),
           child: Text('No documents found',
-              style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)),
+              style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)),
         )
+
       else
         ...docs.map((doc) => _DocTile(doc: doc, iconColor: iconColor)),
     ]);
@@ -78,14 +84,16 @@ class _DocTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
+
       child: Row(children: [
         Container(
           width: 40,
@@ -103,17 +111,20 @@ class _DocTile extends StatelessWidget {
                 style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary),
+                    color: theme.textTheme.titleMedium?.color),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
+
             Text('Uploaded: ${_fmtDate(doc['created_at'])}',
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)),
+                style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor)),
+
           ]),
         ),
         if (doc['url'] != null)
           IconButton(
-            icon: const Icon(Icons.download_rounded,
-                color: AppColors.textMuted, size: 20),
+            icon: Icon(Icons.download_rounded,
+                color: theme.hintColor, size: 20),
+
             onPressed: () {
               // URL launch would go here; shown as info snack for now
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(

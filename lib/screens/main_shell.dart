@@ -34,17 +34,18 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
         elevation: 0,
         title: Text(
           _titles[_selectedIndex],
           style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         actions: [
@@ -68,7 +69,7 @@ class _MainShellState extends State<MainShell> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.glassBorder),
+          child: Container(height: 1, color: theme.dividerColor),
         ),
       ),
       body: IndexedStack(
@@ -80,15 +81,16 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildBottomNav() {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: const Border(
-          top: BorderSide(color: AppColors.glassBorder),
+        color: theme.colorScheme.surface,
+        border: Border(
+          top: BorderSide(color: theme.dividerColor),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(theme.brightness == Brightness.dark ? 0.3 : 0.05),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -122,7 +124,7 @@ class _MainShellState extends State<MainShell> {
                           isActive ? item.activeIcon : item.icon,
                           color: isActive
                               ? AppColors.primary
-                              : AppColors.textMuted,
+                              : theme.hintColor,
                           size: 24,
                         ),
                         const SizedBox(height: 4),
@@ -135,7 +137,7 @@ class _MainShellState extends State<MainShell> {
                                 : FontWeight.w400,
                             color: isActive
                                 ? AppColors.primary
-                                : AppColors.textMuted,
+                                : theme.hintColor,
                           ),
                         ),
                       ],
@@ -151,25 +153,26 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _showLogoutDialog() {
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Sign Out',
           style: GoogleFonts.inter(
-              color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+              color: theme.textTheme.titleLarge?.color, fontWeight: FontWeight.w600),
         ),
         content: Text(
           'Are you sure you want to sign out?',
-          style: GoogleFonts.inter(color: AppColors.textSecondary),
+          style: GoogleFonts.inter(color: theme.textTheme.bodyMedium?.color),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cancel',
-                style: GoogleFonts.inter(color: AppColors.textMuted)),
+                style: GoogleFonts.inter(color: theme.hintColor)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -198,6 +201,7 @@ class _MainShellState extends State<MainShell> {
       ),
     );
   }
+
 }
 
 class _NavItem {

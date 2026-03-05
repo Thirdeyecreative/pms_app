@@ -16,6 +16,7 @@ class AttendanceTab extends StatelessWidget {
     final history = dash.attendanceHistory;
     final otRequests = dash.otRequests;
 
+    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
@@ -23,7 +24,8 @@ class AttendanceTab extends StatelessWidget {
             style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleLarge?.color)),
+
         const SizedBox(height: 12),
 
         // Stats grid
@@ -53,7 +55,8 @@ class AttendanceTab extends StatelessWidget {
                 color: AppColors.textPrimary)),
         const SizedBox(height: 10),
         if (history.isEmpty)
-          _emptyCard('No attendance records found')
+          _emptyCard(context, 'No attendance records found')
+
         else
           ...history.map((rec) => _AttendanceCard(rec: rec)),
 
@@ -81,6 +84,7 @@ class _AttendStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -97,12 +101,13 @@ class _AttendStat extends StatelessWidget {
             const SizedBox(height: 2),
             Text(label,
                 style: GoogleFonts.inter(
-                    fontSize: 10, color: AppColors.textMuted),
+                    fontSize: 10, color: theme.hintColor),
                 textAlign: TextAlign.center),
           ]),
     );
   }
 }
+
 
 class _AttendanceCard extends StatefulWidget {
   final AttendanceRecord rec;
@@ -131,13 +136,15 @@ class _AttendanceCardState extends State<_AttendanceCard> {
     final sColor = _statusColor(rec.status);
     final haslogs = rec.logs.isNotEmpty;
 
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
+
       child: Column(children: [
         GestureDetector(
           onTap: haslogs ? () => setState(() => _expanded = !_expanded) : null,
@@ -158,15 +165,15 @@ class _AttendanceCardState extends State<_AttendanceCard> {
                           style: GoogleFonts.inter(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary)),
+                              color: theme.textTheme.titleMedium?.color)),
                       Text(_dayName(rec.date),
                           style: GoogleFonts.inter(
-                              fontSize: 11, color: AppColors.textMuted)),
+                              fontSize: 11, color: theme.hintColor)),
                     ]),
               ),
               Text(rec.totalHoursFormatted,
                   style: GoogleFonts.inter(
-                      fontSize: 12, color: AppColors.textSecondary)),
+                      fontSize: 12, color: theme.textTheme.bodyMedium?.color)),
               const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -185,10 +192,11 @@ class _AttendanceCardState extends State<_AttendanceCard> {
                   padding: const EdgeInsets.only(left: 6),
                   child: Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
-                    color: AppColors.textMuted,
+                    color: theme.hintColor,
                     size: 18,
                   ),
                 ),
+
             ]),
           ),
         ),
@@ -197,9 +205,10 @@ class _AttendanceCardState extends State<_AttendanceCard> {
             margin: const EdgeInsets.fromLTRB(14, 0, 14, 12),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.glassBg,
+              color: theme.inputDecorationTheme.fillColor,
               borderRadius: BorderRadius.circular(10),
             ),
+
             child: Column(children: [
               ...rec.logs.asMap().entries.map((e) {
                 final idx = e.key;
@@ -224,12 +233,13 @@ class _AttendanceCardState extends State<_AttendanceCard> {
                       child: Text(
                         'In: ${_fmtTime(log.checkIn)}  |  Out: ${log.checkOut != null ? _fmtTime(log.checkOut!) : "Active"}',
                         style: GoogleFonts.inter(
-                            fontSize: 11, color: AppColors.textSecondary),
+                            fontSize: 11, color: theme.textTheme.bodyMedium?.color),
                       ),
                     ),
                     if (log.location != null && log.location!.isNotEmpty)
                       Icon(Icons.location_on_rounded,
-                          color: AppColors.textMuted, size: 12),
+                          color: theme.hintColor, size: 12),
+
                   ]),
                 );
               }),
@@ -268,15 +278,17 @@ class _OTRequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final sColor = _statusColor(req.status);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
+
       child: Row(children: [
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -284,16 +296,17 @@ class _OTRequestCard extends StatelessWidget {
               '${_fmtTime(req.startTime)} – ${_fmtTime(req.endTime)}',
               style: GoogleFonts.inter(
                   fontSize: 13, fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary),
+                  color: theme.textTheme.titleMedium?.color),
             ),
             Text(
               req.formattedDuration,
-              style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted),
+              style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor),
             ),
             if (req.reason != null && req.reason!.isNotEmpty)
               Text(req.reason!,
-                  style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+                  style: GoogleFonts.inter(fontSize: 11, color: theme.textTheme.bodyMedium?.color),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
+
           ]),
         ),
         Container(
@@ -327,13 +340,17 @@ class _OTRequestCard extends StatelessWidget {
   }
 }
 
-Widget _emptyCard(String msg) => Container(
+Widget _emptyCard(BuildContext context, String msg) {
+  final theme = Theme.of(context);
+  return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Text(msg,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)));
+          style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)));
+}
+

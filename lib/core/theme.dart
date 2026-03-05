@@ -10,16 +10,26 @@ class AppColors {
   static const Color accent = Color(0xFF00D4AA);
   static const Color accentWarm = Color(0xFFFF6B6B);
 
-  // Backgrounds
+  // Dark Backgrounds
   static const Color background = Color(0xFF0F0F1A);
   static const Color surface = Color(0xFF1A1A2E);
   static const Color surfaceLight = Color(0xFF22223B);
   static const Color cardBg = Color(0xFF16213E);
 
-  // Text
+  // Light Backgrounds
+  static const Color backgroundLight = Color(0xFFF8F9FE);
+  static const Color surfaceWhite = Colors.white;
+  static const Color cardBgLight = Colors.white;
+
+  // Dark Text
   static const Color textPrimary = Color(0xFFEAEAFF);
   static const Color textSecondary = Color(0xFF9199B3);
   static const Color textMuted = Color(0xFF565E78);
+
+  // Light Text
+  static const Color textPrimaryLight = Color(0xFF1A1A2E);
+  static const Color textSecondaryLight = Color(0xFF565E78);
+  static const Color textMutedLight = Color(0xFF9199B3);
 
   // Status
   static const Color success = Color(0xFF00D4AA);
@@ -29,69 +39,102 @@ class AppColors {
 
   // Glassmorphism
   static const Color glassWhite = Color(0x0DFFFFFF);
+  static const Color glassBlack = Color(0x0D000000);
   static const Color glassBorder = Color(0x1AFFFFFF);
-  static const Color glassBg = Color(0xFF1C1C30);
+  static const Color glassBorderLight = Color(0x1A000000);
+  static const Color glassBg = Color(0x0DFFFFFF);
+  static const Color glassBgLight = Color(0x0D000000);
 }
+
 
 class AppTheme {
   static ThemeData get darkTheme {
+    return _buildTheme(Brightness.dark);
+  }
+
+  static ThemeData get lightTheme {
+    return _buildTheme(Brightness.light);
+  }
+
+  static ThemeData _buildTheme(Brightness brightness) {
+    final bool isDark = brightness == Brightness.dark;
+    
+    final Color bgColor = isDark ? AppColors.background : AppColors.backgroundLight;
+    final Color surfaceColor = isDark ? AppColors.surface : AppColors.surfaceWhite;
+    final Color cardColor = isDark ? AppColors.cardBg : AppColors.cardBgLight;
+    final Color textPrimary = isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
+    final Color textSecondary = isDark ? AppColors.textSecondary : AppColors.textSecondaryLight;
+    final Color textMuted = isDark ? AppColors.textMuted : AppColors.textMutedLight;
+    final Color glassBorder = isDark ? AppColors.glassBorder : AppColors.glassBorderLight;
+    final Color glassBg = isDark ? AppColors.glassWhite : AppColors.glassBlack;
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.accent,
-        surface: AppColors.surface,
-        error: AppColors.error,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: AppColors.textPrimary,
-      ),
+      brightness: brightness,
+      scaffoldBackgroundColor: bgColor,
+      colorScheme: isDark 
+        ? const ColorScheme.dark(
+            primary: AppColors.primary,
+            secondary: AppColors.accent,
+            surface: AppColors.surface,
+            error: AppColors.error,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: AppColors.textPrimary,
+          )
+        : const ColorScheme.light(
+            primary: AppColors.primary,
+            secondary: AppColors.accent,
+            surface: AppColors.surfaceWhite,
+            error: AppColors.error,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: AppColors.textPrimaryLight,
+          ),
       textTheme: GoogleFonts.interTextTheme(
-        const TextTheme(
+        TextTheme(
           displayLarge: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 32,
             fontWeight: FontWeight.w700,
           ),
           displayMedium: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 24,
             fontWeight: FontWeight.w600,
           ),
           headlineMedium: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
           titleLarge: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
           titleMedium: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
           bodyLarge: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
           bodyMedium: TextStyle(
-            color: AppColors.textSecondary,
+            color: textSecondary,
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
           bodySmall: TextStyle(
-            color: AppColors.textMuted,
+            color: textMuted,
             fontSize: 12,
             fontWeight: FontWeight.w400,
           ),
           labelLarge: TextStyle(
-            color: AppColors.textPrimary,
+            color: textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -99,15 +142,15 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.glassWhite,
+        fillColor: glassBg,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
+          borderSide: BorderSide(color: glassBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.glassBorder),
+          borderSide: BorderSide(color: glassBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -121,8 +164,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(color: textMuted, fontSize: 14),
+        labelStyle: TextStyle(color: textSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -135,11 +178,12 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.cardBg,
-        elevation: 0,
+        color: cardColor,
+        elevation: isDark ? 0 : 2,
+        shadowColor: Colors.black.withOpacity(0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.glassBorder),
+          side: BorderSide(color: glassBorder),
         ),
       ),
       appBarTheme: AppBarTheme(
@@ -147,14 +191,14 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
-          color: AppColors.textPrimary,
+          color: textPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: textPrimary),
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.glassBorder,
+      dividerTheme: DividerThemeData(
+        color: glassBorder,
         thickness: 1,
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
@@ -166,3 +210,4 @@ class AppTheme {
     );
   }
 }
+

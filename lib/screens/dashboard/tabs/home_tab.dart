@@ -14,10 +14,12 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final s = dash.attendanceSummary;
     return RefreshIndicator(
       color: AppColors.primary,
-      backgroundColor: AppColors.surface,
+      backgroundColor: theme.cardTheme.color,
+
       onRefresh: () async {
         final auth = context.read<AuthProvider>();
         final id = auth.currentUser?.id ?? '';
@@ -27,7 +29,7 @@ class HomeTab extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
         children: [
           // Quick Actions
-          _sectionLabel('Quick Actions'),
+          _sectionLabel(context, 'Quick Actions'),
           const SizedBox(height: 10),
           Row(children: [
             _QuickAction(
@@ -54,7 +56,7 @@ class HomeTab extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Attendance Overview
-          _sectionLabel('Attendance This Month'),
+          _sectionLabel(context, 'Attendance This Month'),
           const SizedBox(height: 10),
           Row(children: [
             _StatChip(label: 'Present', value: s.present, color: AppColors.success),
@@ -68,10 +70,10 @@ class HomeTab extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Leave Balance
-          _sectionLabel('Leave Balance'),
+          _sectionLabel(context, 'Leave Balance'),
           const SizedBox(height: 10),
           if (dash.leaveBalance.isEmpty)
-            _emptyCard('No leave balance data')
+            _emptyCard(context, 'No leave balance data')
           else
             SizedBox(
               height: 120,
@@ -87,17 +89,17 @@ class HomeTab extends StatelessWidget {
 
           // Recent Payslips
           if (dash.payslips.isNotEmpty) ...[
-            _sectionLabel('Recent Payslips'),
+            _sectionLabel(context, 'Recent Payslips'),
             const SizedBox(height: 10),
             ...dash.payslips.take(3).map((p) => _PayslipRow(p: p)),
             const SizedBox(height: 20),
           ],
 
           // Announcements
-          _sectionLabel('Announcements'),
+          _sectionLabel(context, 'Announcements'),
           const SizedBox(height: 10),
           if (dash.announcements.isEmpty)
-            _emptyCard('No announcements')
+            _emptyCard(context, 'No announcements')
           else
             ...dash.announcements.take(3).map((a) => _AnnouncementRow(
                   title: a.title,
@@ -105,28 +107,34 @@ class HomeTab extends StatelessWidget {
                   priority: a.priority,
                 )),
         ],
+
       ),
     );
   }
 }
 
-Widget _sectionLabel(String text) => Text(text,
+Widget _sectionLabel(BuildContext context, String text) => Text(text,
     style: GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary));
+        color: Theme.of(context).textTheme.titleMedium?.color));
 
-Widget _emptyCard(String msg) => Container(
+
+Widget _emptyCard(BuildContext context, String msg) {
+  final theme = Theme.of(context);
+  return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(18),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Text(msg,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)));
+          style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)));
+}
+
 
 class _QuickAction extends StatelessWidget {
   final IconData icon;
@@ -141,6 +149,7 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -158,7 +167,7 @@ class _QuickAction extends StatelessWidget {
                 style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary),
+                    color: theme.textTheme.bodyMedium?.color),
                 textAlign: TextAlign.center),
           ]),
         ),
@@ -166,6 +175,7 @@ class _QuickAction extends StatelessWidget {
     );
   }
 }
+
 
 class _StatChip extends StatelessWidget {
   final String label;
@@ -176,6 +186,7 @@ class _StatChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -191,12 +202,13 @@ class _StatChip extends StatelessWidget {
           const SizedBox(height: 2),
           Text(label,
               style:
-                  GoogleFonts.inter(fontSize: 10, color: AppColors.textMuted)),
+                  GoogleFonts.inter(fontSize: 10, color: theme.hintColor)),
         ]),
       ),
     );
   }
 }
+
 
 class _LeaveBalanceCard extends StatelessWidget {
   final LeaveBalance lb;
@@ -204,13 +216,14 @@ class _LeaveBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: 110,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +231,7 @@ class _LeaveBalanceCard extends StatelessWidget {
         children: [
           Text(lb.leaveType,
               style: GoogleFonts.inter(
-                  fontSize: 10, color: AppColors.textSecondary),
+                  fontSize: 10, color: theme.textTheme.bodyMedium?.color),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
           const SizedBox(height: 8),
@@ -229,11 +242,11 @@ class _LeaveBalanceCard extends StatelessWidget {
                   style: GoogleFonts.inter(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
+                      color: theme.textTheme.titleLarge?.color)),
               TextSpan(
                   text: '/${lb.totalLeaves.toStringAsFixed(0)}',
                   style: GoogleFonts.inter(
-                      fontSize: 11, color: AppColors.textMuted)),
+                      fontSize: 11, color: theme.hintColor)),
             ]),
           ),
           const SizedBox(height: 8),
@@ -242,7 +255,7 @@ class _LeaveBalanceCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: lb.usagePercent,
               minHeight: 3,
-              backgroundColor: AppColors.glassBorder,
+              backgroundColor: theme.dividerColor,
               valueColor: AlwaysStoppedAnimation<Color>(
                   lb.balance > 0 ? AppColors.primary : AppColors.error),
             ),
@@ -253,19 +266,21 @@ class _LeaveBalanceCard extends StatelessWidget {
   }
 }
 
+
 class _PayslipRow extends StatelessWidget {
   final dynamic p;
   const _PayslipRow({required this.p});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Row(children: [
         Container(
@@ -284,19 +299,20 @@ class _PayslipRow extends StatelessWidget {
               style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary)),
+                  color: theme.textTheme.titleMedium?.color)),
         ),
         Text(
           '₹${NumberFormat('#,##,###').format(p.netSalary.round())}',
           style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary),
+              color: theme.textTheme.titleLarge?.color),
         ),
       ]),
     );
   }
 }
+
 
 class _AnnouncementRow extends StatelessWidget {
   final String title;
@@ -318,14 +334,15 @@ class _AnnouncementRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final color = _color();
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
@@ -340,11 +357,11 @@ class _AnnouncementRow extends StatelessWidget {
                 style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary)),
+                    color: theme.textTheme.titleMedium?.color)),
             const SizedBox(height: 3),
             Text(message,
                 style: GoogleFonts.inter(
-                    fontSize: 11, color: AppColors.textSecondary),
+                    fontSize: 11, color: theme.textTheme.bodyMedium?.color),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis),
           ]),
@@ -353,3 +370,4 @@ class _AnnouncementRow extends StatelessWidget {
     );
   }
 }
+

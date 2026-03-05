@@ -7,15 +7,15 @@ import 'providers/dashboard_provider.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/main_shell.dart';
 
+import 'package:pms_app/providers/theme_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set status bar style
+  // Set status bar style logic will be handled by the theme itself
+  // but we can set a default here
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: AppColors.surface,
-    systemNavigationBarIconBrightness: Brightness.light,
   ));
 
   // Portrait only
@@ -34,18 +34,26 @@ class PmsApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => DashboardProvider()),
       ],
-      child: MaterialApp(
-        title: 'PeopleMS',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        home: const _AuthGate(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: 'PeopleMS',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const _AuthGate(),
+          );
+        },
       ),
     );
   }
 }
+
 
 class _AuthGate extends StatefulWidget {
   const _AuthGate();

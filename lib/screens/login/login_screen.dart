@@ -63,8 +63,10 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background decoration blobs
@@ -146,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen>
                           style: GoogleFonts.inter(
                             fontSize: 30,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: theme.textTheme.titleLarge?.color,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -154,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen>
                           'Sign in to your HRMS account',
                           style: GoogleFonts.inter(
                             fontSize: 15,
-                            color: AppColors.textSecondary,
+                            color: theme.hintColor,
                           ),
                         ),
                         const SizedBox(height: 44),
@@ -162,9 +164,9 @@ class _LoginScreenState extends State<LoginScreen>
                         Container(
                           padding: const EdgeInsets.all(28),
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: theme.cardTheme.color,
                             borderRadius: BorderRadius.circular(28),
-                            border: Border.all(color: AppColors.glassBorder),
+                            border: Border.all(color: theme.dividerColor),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.3),
@@ -173,6 +175,7 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ],
                           ),
+
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -193,17 +196,18 @@ class _LoginScreenState extends State<LoginScreen>
                                   keyboardType: TextInputType.emailAddress,
                                   autocorrect: false,
                                   style: GoogleFonts.inter(
-                                    color: AppColors.textPrimary,
+                                    color: theme.textTheme.bodyLarge?.color,
                                     fontSize: 15,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: 'you@company.com',
-                                    prefixIcon: const Icon(
+                                    prefixIcon: Icon(
                                       Icons.email_outlined,
-                                      color: AppColors.textMuted,
+                                      color: theme.hintColor,
                                       size: 20,
                                     ),
                                   ),
+
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty) {
                                       return 'Email is required';
@@ -229,14 +233,14 @@ class _LoginScreenState extends State<LoginScreen>
                                   controller: _passCtrl,
                                   obscureText: _obscure,
                                   style: GoogleFonts.inter(
-                                    color: AppColors.textPrimary,
+                                    color: theme.textTheme.bodyLarge?.color,
                                     fontSize: 15,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: '••••••••',
-                                    prefixIcon: const Icon(
+                                    prefixIcon: Icon(
                                       Icons.lock_outline,
-                                      color: AppColors.textMuted,
+                                      color: theme.hintColor,
                                       size: 20,
                                     ),
                                     suffixIcon: GestureDetector(
@@ -246,11 +250,12 @@ class _LoginScreenState extends State<LoginScreen>
                                         _obscure
                                             ? Icons.visibility_off_outlined
                                             : Icons.visibility_outlined,
-                                        color: AppColors.textMuted,
+                                        color: theme.hintColor,
                                         size: 20,
                                       ),
                                     ),
                                   ),
+
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
                                       return 'Password is required';
@@ -354,9 +359,10 @@ class _LoginScreenState extends State<LoginScreen>
                           'Secured by PeopleMS HR Platform',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: AppColors.textMuted,
+                            color: theme.hintColor,
                           ),
                         ),
+
                         const SizedBox(height: 24),
                       ],
                     ),

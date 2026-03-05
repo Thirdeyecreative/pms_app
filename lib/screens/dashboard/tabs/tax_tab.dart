@@ -17,6 +17,7 @@ class TaxTab extends StatelessWidget {
 
     final totalDeclared = decls.fold(0.0, (s, d) => s + d.declaredAmount);
 
+    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
@@ -24,7 +25,8 @@ class TaxTab extends StatelessWidget {
             style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleLarge?.color)),
+
         const SizedBox(height: 16),
 
         // Summary cards
@@ -50,10 +52,12 @@ class TaxTab extends StatelessWidget {
             style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleMedium?.color)),
+
         const SizedBox(height: 10),
         if (decls.isEmpty)
-          _emptyCard('No tax declarations found')
+          _emptyCard(context, 'No tax declarations found')
+
         else
           ...decls.map((d) => _DeclCard(d: d, dash: dash, context: context)),
 
@@ -64,19 +68,22 @@ class TaxTab extends StatelessWidget {
             style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleMedium?.color)),
+
         const SizedBox(height: 10),
         if (f16s.isEmpty)
-          _emptyCard('No Form 16 available')
+          _emptyCard(context, 'No Form 16 available')
+
         else
           ...f16s.map((f) => Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: theme.cardTheme.color,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.glassBorder),
+                  border: Border.all(color: theme.dividerColor),
                 ),
+
                 child: Row(children: [
                   Container(
                     width: 40,
@@ -97,12 +104,14 @@ class TaxTab extends StatelessWidget {
                               style: GoogleFonts.inter(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary)),
+                                  color: theme.textTheme.titleMedium?.color)),
+
                           Text(
                             'Generated ${f.generatedAt?.substring(0, 10) ?? ''}',
                             style: GoogleFonts.inter(
-                                fontSize: 11, color: AppColors.textMuted),
+                                fontSize: 11, color: theme.hintColor),
                           ),
+
                         ]),
                   ),
                   ElevatedButton.icon(
@@ -148,6 +157,7 @@ class _TaxCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -159,14 +169,16 @@ class _TaxCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label,
               style:
-                  GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)),
+                  GoogleFonts.inter(fontSize: 11, color: theme.hintColor)),
+
           const SizedBox(height: 6),
           Text(value,
               style: GoogleFonts.inter(
                   fontSize: 20, fontWeight: FontWeight.w800, color: color)),
           Text(sub,
               style: GoogleFonts.inter(
-                  fontSize: 10, color: AppColors.textSecondary)),
+                  fontSize: 10, color: theme.textTheme.bodySmall?.color)),
+
         ]),
       ),
     );
@@ -177,14 +189,16 @@ Widget _DeclCard(
     {required TaxDeclaration d,
     required DashboardProvider dash,
     required BuildContext context}) {
+  final theme = Theme.of(context);
   return Container(
     margin: const EdgeInsets.only(bottom: 8),
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: AppColors.surface,
+      color: theme.cardTheme.color,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: AppColors.glassBorder),
+      border: Border.all(color: theme.dividerColor),
     ),
+
     child: Row(children: [
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -192,14 +206,16 @@ Widget _DeclCard(
               style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary),
+                  color: theme.textTheme.titleMedium?.color),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
+
           const SizedBox(height: 2),
           Text(
             'Declared: ₹${d.declaredAmount.round()}  |  Max: ₹${d.maxLimit.round()}',
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted),
+            style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor),
           ),
+
         ]),
       ),
       Container(
@@ -220,19 +236,21 @@ Widget _DeclCard(
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              backgroundColor: AppColors.surface,
+              backgroundColor: theme.cardTheme.color,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
               title: Text('Delete Declaration',
                   style: GoogleFonts.inter(
-                      color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+                      color: theme.textTheme.titleLarge?.color, fontWeight: FontWeight.w700)),
               content: Text('Are you sure you want to delete this declaration?',
-                  style: GoogleFonts.inter(color: AppColors.textSecondary)),
+                  style: GoogleFonts.inter(color: theme.textTheme.bodyMedium?.color)),
+
               actions: [
                 TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
                     child: Text('Cancel',
-                        style: GoogleFonts.inter(color: AppColors.textMuted))),
+                        style: GoogleFonts.inter(color: theme.hintColor))),
+
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.error,
@@ -270,13 +288,17 @@ Widget _DeclCard(
   );
 }
 
-Widget _emptyCard(String msg) => Container(
+Widget _emptyCard(BuildContext context, String msg) {
+  final theme = Theme.of(context);
+  return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Text(msg,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)));
+          style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)));
+}
+

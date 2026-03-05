@@ -18,7 +18,9 @@ class _PayrollTabState extends State<PayrollTab> {
   @override
   Widget build(BuildContext context) {
     final dash = widget.dash;
+    final theme = Theme.of(context);
     final salary = dash.activeSalary;
+
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
@@ -28,22 +30,23 @@ class _PayrollTabState extends State<PayrollTab> {
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.glassBorder),
+            border: Border.all(color: theme.dividerColor),
           ),
           child: salary == null
               ? Padding(
                   padding: const EdgeInsets.all(32),
                   child: Column(children: [
                     Icon(Icons.account_balance_wallet_outlined,
-                        color: AppColors.textMuted.withAlpha(80), size: 40),
+                        color: theme.hintColor.withAlpha(80), size: 40),
                     const SizedBox(height: 12),
                     Text('No active salary structure found',
                         style: GoogleFonts.inter(
-                            fontSize: 13, color: AppColors.textMuted)),
+                            fontSize: 13, color: theme.hintColor)),
                   ]),
                 )
+
               : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   // Gross Annual
                   Container(
@@ -64,7 +67,7 @@ class _PayrollTabState extends State<PayrollTab> {
                       children: [
                         Text('Gross Annual Salary',
                             style: GoogleFonts.inter(
-                                fontSize: 12, color: AppColors.textSecondary)),
+                                fontSize: 12, color: theme.textTheme.bodyMedium?.color)),
                         const SizedBox(height: 6),
                         Text(
                           '₹${NumberFormat('#,##,###').format(salary.grossSalary.round())}',
@@ -76,8 +79,9 @@ class _PayrollTabState extends State<PayrollTab> {
                         Text(
                           'Effective from: ${_fmtDate(salary.effectiveFrom)}',
                           style: GoogleFonts.inter(
-                              fontSize: 11, color: AppColors.textMuted),
+                              fontSize: 11, color: theme.hintColor),
                         ),
+
                       ],
                     ),
                   ),
@@ -88,8 +92,9 @@ class _PayrollTabState extends State<PayrollTab> {
                         style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary)),
+                            color: theme.textTheme.titleMedium?.color)),
                   ),
+
                   const SizedBox(height: 10),
                   ...salary.items
                       .take(_showAll ? salary.items.length : 3)
@@ -100,15 +105,16 @@ class _PayrollTabState extends State<PayrollTab> {
                                 child: Text(item.componentName,
                                     style: GoogleFonts.inter(
                                         fontSize: 13,
-                                        color: AppColors.textSecondary)),
+                                        color: theme.textTheme.bodyMedium?.color)),
                               ),
                               Text(
                                 '₹${NumberFormat('#,##,###').format(item.amount.round())}',
                                 style: GoogleFonts.inter(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary),
+                                    color: theme.textTheme.titleMedium?.color),
                               ),
+
                             ]),
                           )),
                   if (salary.items.length > 3)
@@ -133,16 +139,18 @@ class _PayrollTabState extends State<PayrollTab> {
         _SectionHeader(title: 'Payslip History'),
         const SizedBox(height: 10),
         if (dash.payslips.isEmpty)
-          _emptyCard('No payslips found')
+          _emptyCard(context, 'No payslips found')
+
         else
           ...dash.payslips.map((p) => Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: theme.cardTheme.color,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.glassBorder),
+                  border: Border.all(color: theme.dividerColor),
                 ),
+
                 child: Row(children: [
                   Container(
                     width: 40,
@@ -163,12 +171,13 @@ class _PayrollTabState extends State<PayrollTab> {
                               style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary)),
+                                  color: theme.textTheme.titleMedium?.color)),
                       Text(
                             p.displayMonth,
                             style: GoogleFonts.inter(
-                                fontSize: 11, color: AppColors.textMuted),
+                                fontSize: 11, color: theme.hintColor),
                           ),
+
                         ]),
                   ),
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -177,8 +186,9 @@ class _PayrollTabState extends State<PayrollTab> {
                       style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary),
+                          color: theme.textTheme.titleLarge?.color),
                     ),
+
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
@@ -217,16 +227,21 @@ class _SectionHeader extends StatelessWidget {
       style: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary));
+          color: Theme.of(context).textTheme.titleMedium?.color));
+
 }
 
-Widget _emptyCard(String msg) => Container(
+Widget _emptyCard(BuildContext context, String msg) {
+  final theme = Theme.of(context);
+  return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Text(msg,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)));
+          style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)));
+}
+

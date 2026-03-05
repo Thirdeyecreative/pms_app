@@ -65,6 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Consumer<DashboardProvider>(builder: (context, dash, _) {
       if (dash.isLoading && dash.employee == null) {
         return const Center(
@@ -85,7 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                 end: Alignment.bottomRight,
                 colors: [
                   AppColors.primary.withAlpha(28),
-                  AppColors.background,
+                  theme.scaffoldBackgroundColor,
                 ],
               ),
             ),
@@ -100,18 +101,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                       Text(
                         '${_greeting()},',
                         style: GoogleFonts.inter(
-                            fontSize: 13, color: AppColors.textSecondary),
+                            fontSize: 13, color: theme.hintColor),
                       ),
                       Text(
                         firstName,
                         style: GoogleFonts.inter(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      _buildClockCard(dash),
+                      _buildClockCard(context, dash),
                       const SizedBox(height: 10),
                     ],
                   ),
@@ -125,11 +126,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                   unselectedLabelStyle:
                       GoogleFonts.inter(fontSize: 13),
                   labelColor: AppColors.primary,
-                  unselectedLabelColor: AppColors.textMuted,
+                  unselectedLabelColor: theme.hintColor,
                   indicatorColor: AppColors.primary,
                   indicatorWeight: 2.5,
                   indicatorSize: TabBarIndicatorSize.label,
-                  dividerColor: AppColors.glassBorder,
+                  dividerColor: theme.dividerColor,
                   tabs: _tabs,
                 ),
               ],
@@ -156,19 +157,20 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
   }
 
-  Widget _buildClockCard(DashboardProvider dash) {
+  Widget _buildClockCard(BuildContext context, DashboardProvider dash) {
+    final theme = Theme.of(context);
     final isClockedIn = dash.isClockedIn;
-    final statusColor = isClockedIn ? AppColors.accent : AppColors.textMuted;
+    final statusColor = isClockedIn ? AppColors.accent : theme.hintColor;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: isClockedIn
               ? AppColors.accent.withAlpha(60)
-              : AppColors.glassBorder,
+              : theme.dividerColor,
         ),
       ),
       child: Row(
@@ -199,15 +201,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                   style: GoogleFonts.inter(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: theme.textTheme.titleLarge?.color,
                   ),
                 ),
                 Text("Today's work time",
                     style: GoogleFonts.inter(
-                        fontSize: 11, color: AppColors.textMuted)),
+                        fontSize: 11, color: theme.hintColor)),
               ],
             ),
           ),
+
+
           GestureDetector(
             onTap: dash.clockLoading ? null : () => _handleClockAction(dash),
             child: AnimatedContainer(

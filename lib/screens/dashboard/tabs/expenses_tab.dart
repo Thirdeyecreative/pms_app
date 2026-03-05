@@ -28,12 +28,14 @@ class _ExpensesTabState extends State<ExpensesTab> {
     DateTime? expenseDate;
     final formKey = GlobalKey<FormState>();
 
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.glassBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
             bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -61,14 +63,15 @@ class _ExpensesTabState extends State<ExpensesTab> {
                 Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
-                      color: AppColors.glassBorder,
+                      color: theme.dividerColor,
                       borderRadius: BorderRadius.circular(2)),
                 ),
                 const SizedBox(height: 16),
                 Text('Submit Expense',
                     style: GoogleFonts.inter(
                         fontSize: 18, fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
+                        color: theme.textTheme.titleLarge?.color)),
+
                 const SizedBox(height: 20),
 
                 if (categories.isEmpty)
@@ -77,13 +80,15 @@ class _ExpensesTabState extends State<ExpensesTab> {
                 else
                   DropdownButtonFormField<String>(
                     value: selectedCatId,
-                    decoration: _inputDeco('Category'),
-                    dropdownColor: AppColors.surface,
+                    decoration: _inputDeco(context, 'Category'),
+                    dropdownColor: theme.cardTheme.color,
+
                     items: categories.map((c) => DropdownMenuItem(
                       value: c.id,
                       child: Text(c.name,
-                          style: GoogleFonts.inter(color: AppColors.textPrimary)),
+                          style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color)),
                     )).toList(),
+
                     validator: (v) => v == null ? 'Select category' : null,
                     onChanged: (v) => setSS(() => selectedCatId = v),
                   ),
@@ -91,8 +96,9 @@ class _ExpensesTabState extends State<ExpensesTab> {
                 TextFormField(
                   controller: amtCtrl,
                   keyboardType: TextInputType.number,
-                  style: GoogleFonts.inter(color: AppColors.textPrimary),
-                  decoration: _inputDeco('Amount (₹)'),
+                  style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color),
+                  decoration: _inputDeco(context, 'Amount (₹)'),
+
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Enter amount';
                     if (double.tryParse(v) == null) return 'Invalid amount';
@@ -105,10 +111,11 @@ class _ExpensesTabState extends State<ExpensesTab> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: theme.cardTheme.color,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.glassBorder),
+                      border: Border.all(color: theme.dividerColor),
                     ),
+
                     child: Row(children: [
                       const Icon(Icons.calendar_today_rounded,
                           color: AppColors.textMuted, size: 18),
@@ -120,9 +127,10 @@ class _ExpensesTabState extends State<ExpensesTab> {
                         style: GoogleFonts.inter(
                             fontSize: 14,
                             color: expenseDate != null
-                                ? AppColors.textPrimary
-                                : AppColors.textMuted),
+                                ? theme.textTheme.bodyLarge?.color
+                                : theme.hintColor),
                       ),
+
                     ]),
                   ),
                 ),
@@ -130,8 +138,9 @@ class _ExpensesTabState extends State<ExpensesTab> {
                 TextFormField(
                   controller: descCtrl,
                   maxLines: 3,
-                  style: GoogleFonts.inter(color: AppColors.textPrimary),
-                  decoration: _inputDeco('Description'),
+                  style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color),
+                  decoration: _inputDeco(context, 'Description'),
+
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Enter description' : null,
                 ),
@@ -210,6 +219,7 @@ class _ExpensesTabState extends State<ExpensesTab> {
   @override
   Widget build(BuildContext context) {
     final dash = widget.dash;
+    final theme = Theme.of(context);
     final exps = dash.expenses;
     final totalApproved = exps
         .where((e) => ['approved', 'reimbursed'].contains(e.status.toLowerCase()))
@@ -228,7 +238,7 @@ class _ExpensesTabState extends State<ExpensesTab> {
               style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary)),
+                  color: theme.textTheme.titleLarge?.color)),
           const Spacer(),
           ElevatedButton.icon(
             onPressed: _submitting ? null : () => _showSubmitExpense(context),
@@ -264,10 +274,12 @@ class _ExpensesTabState extends State<ExpensesTab> {
             style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary)),
+                color: theme.textTheme.titleMedium?.color)),
+
         const SizedBox(height: 10),
         if (exps.isEmpty)
-          _emptyCard('No expenses submitted yet')
+          _emptyCard(context, 'No expenses submitted yet')
+
         else
           ...exps.map((e) {
             final sColor = _statusColor(e.status);
@@ -275,10 +287,11 @@ class _ExpensesTabState extends State<ExpensesTab> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: theme.cardTheme.color,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.glassBorder),
+                border: Border.all(color: theme.dividerColor),
               ),
+
               child: Row(children: [
                 Container(
                   width: 40,
@@ -299,8 +312,9 @@ class _ExpensesTabState extends State<ExpensesTab> {
                             style: GoogleFonts.inter(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary),
+                                color: theme.textTheme.titleMedium?.color),
                             maxLines: 1,
+
                             overflow: TextOverflow.ellipsis),
                         Text(e.categoryName,
                             style: GoogleFonts.inter(
@@ -313,8 +327,9 @@ class _ExpensesTabState extends State<ExpensesTab> {
                     style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary),
+                        color: theme.textTheme.titleMedium?.color),
                   ),
+
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
@@ -343,6 +358,7 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
@@ -359,40 +375,50 @@ class _StatCard extends StatelessWidget {
                   color: color),
               overflow: TextOverflow.ellipsis),
           Text(label,
-              style: GoogleFonts.inter(fontSize: 9, color: AppColors.textMuted),
+              style: GoogleFonts.inter(fontSize: 9, color: theme.hintColor),
               textAlign: TextAlign.center),
+
         ]),
       ),
     );
   }
 }
 
-InputDecoration _inputDeco(String label) => InputDecoration(
-  labelText: label,
-  labelStyle: GoogleFonts.inter(color: AppColors.textMuted),
-  filled: true,
-  fillColor: AppColors.surface,
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(color: AppColors.glassBorder),
-  ),
-  enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(color: AppColors.glassBorder),
-  ),
+InputDecoration _inputDeco(BuildContext context, String label) {
+  final theme = Theme.of(context);
+  return InputDecoration(
+    labelText: label,
+    labelStyle: GoogleFonts.inter(color: theme.hintColor),
+    filled: true,
+    fillColor: theme.cardTheme.color,
+
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: theme.dividerColor),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: theme.dividerColor),
+    ),
+
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
     borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
   ),
-);
+  );
+}
 
-Widget _emptyCard(String msg) => Container(
+Widget _emptyCard(BuildContext context, String msg) {
+  final theme = Theme.of(context);
+  return Container(
       padding: const EdgeInsets.all(24),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Text(msg,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)));
+          style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)));
+}
+

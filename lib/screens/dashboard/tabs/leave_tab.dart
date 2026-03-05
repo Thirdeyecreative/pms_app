@@ -28,12 +28,14 @@ class _LeaveTabState extends State<LeaveTab> {
     final reasonCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.glassBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
             bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -67,38 +69,41 @@ class _LeaveTabState extends State<LeaveTab> {
                 Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
-                      color: AppColors.glassBorder,
+                      color: theme.dividerColor,
                       borderRadius: BorderRadius.circular(2)),
                 ),
                 const SizedBox(height: 16),
                 Text('Apply Leave',
                     style: GoogleFonts.inter(
                         fontSize: 18, fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
+                        color: theme.textTheme.titleLarge?.color)),
+
                 const SizedBox(height: 20),
                 // Leave type dropdown
                 DropdownButtonFormField<String>(
                   value: selectedTypeId,
                   decoration: InputDecoration(
                     labelText: 'Leave Type',
-                    labelStyle: GoogleFonts.inter(color: AppColors.textMuted),
+                    labelStyle: GoogleFonts.inter(color: theme.hintColor),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: theme.cardTheme.color,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.glassBorder),
+                      borderSide: BorderSide(color: theme.dividerColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.glassBorder),
+                      borderSide: BorderSide(color: theme.dividerColor),
                     ),
                   ),
-                  dropdownColor: AppColors.surface,
+                  dropdownColor: theme.cardTheme.color,
+
                   items: dash.leaveBalance.map((lb) => DropdownMenuItem(
                     value: lb.leaveTypeId,
                     child: Text(lb.leaveType,
-                        style: GoogleFonts.inter(color: AppColors.textPrimary)),
+                        style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color)),
                   )).toList(),
+
                   validator: (v) => v == null ? 'Select leave type' : null,
                   onChanged: (v) => setSS(() => selectedTypeId = v),
                 ),
@@ -120,21 +125,22 @@ class _LeaveTabState extends State<LeaveTab> {
                 TextFormField(
                   controller: reasonCtrl,
                   maxLines: 3,
-                  style: GoogleFonts.inter(color: AppColors.textPrimary),
+                  style: GoogleFonts.inter(color: theme.textTheme.bodyLarge?.color),
                   decoration: InputDecoration(
                     labelText: 'Reason',
-                    labelStyle: GoogleFonts.inter(color: AppColors.textMuted),
+                    labelStyle: GoogleFonts.inter(color: theme.hintColor),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: theme.cardTheme.color,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.glassBorder),
+                      borderSide: BorderSide(color: theme.dividerColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.glassBorder),
+                      borderSide: BorderSide(color: theme.dividerColor),
                     ),
                   ),
+
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Enter reason' : null,
                 ),
@@ -194,6 +200,7 @@ class _LeaveTabState extends State<LeaveTab> {
   @override
   Widget build(BuildContext context) {
     final dash = widget.dash;
+    final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
@@ -202,7 +209,9 @@ class _LeaveTabState extends State<LeaveTab> {
           Text('Leave Management',
               style: GoogleFonts.inter(
                   fontSize: 16, fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary)),
+                  color: theme.textTheme.titleLarge?.color)),
+
+
           const Spacer(),
           ElevatedButton.icon(
             onPressed: _applying ? null : () => _showApplyLeaveSheet(context),
@@ -238,10 +247,12 @@ class _LeaveTabState extends State<LeaveTab> {
         // Leave history
         Text('Leave History',
             style: GoogleFonts.inter(
-                fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                fontSize: 14, fontWeight: FontWeight.w600, color: theme.textTheme.titleMedium?.color)),
+
         const SizedBox(height: 10),
         if (dash.leaveRequests.isEmpty)
-          _emptyCard('No leave history found')
+          _emptyCard(context, 'No leave history found')
+
         else
           ...dash.leaveRequests.map((req) => _LeaveRequestCard(
             req: req,
@@ -282,23 +293,24 @@ class _DateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: theme.cardTheme.color,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.glassBorder),
+          border: Border.all(color: theme.dividerColor),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)),
+          Text(label, style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor)),
           const SizedBox(height: 4),
           Text(
             value != null ? DateFormat('dd MMM yyyy').format(value!) : 'Select date',
             style: GoogleFonts.inter(
                 fontSize: 13,
-                color: value != null ? AppColors.textPrimary : AppColors.textMuted),
+                color: value != null ? theme.textTheme.bodyLarge?.color : theme.hintColor),
           ),
         ]),
       ),
@@ -306,22 +318,25 @@ class _DateField extends StatelessWidget {
   }
 }
 
+
 class _LeaveBalanceDetailCard extends StatelessWidget {
   final LeaveBalance lb;
   const _LeaveBalanceDetailCard({required this.lb});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
+
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(lb.leaveType,
-            style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+            style: GoogleFonts.inter(fontSize: 11, color: theme.textTheme.bodyMedium?.color),
             maxLines: 1, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 8),
         RichText(
@@ -330,19 +345,20 @@ class _LeaveBalanceDetailCard extends StatelessWidget {
                 text: lb.balance.toStringAsFixed(0),
                 style: GoogleFonts.inter(
                     fontSize: 24, fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary)),
+                    color: theme.textTheme.titleLarge?.color)),
             TextSpan(
                 text: ' available',
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)),
+                style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor)),
           ]),
         ),
+
         const Spacer(),
         ClipRRect(
           borderRadius: BorderRadius.circular(3),
           child: LinearProgressIndicator(
             value: lb.usagePercent,
             minHeight: 4,
-            backgroundColor: AppColors.glassBorder,
+            backgroundColor: theme.dividerColor,
             valueColor: AlwaysStoppedAnimation<Color>(
                 lb.balance > 0 ? AppColors.primary : AppColors.error),
           ),
@@ -350,11 +366,12 @@ class _LeaveBalanceDetailCard extends StatelessWidget {
         const SizedBox(height: 6),
         Row(children: [
           Text('Used: ${lb.usedLeaves.toStringAsFixed(0)}',
-              style: GoogleFonts.inter(fontSize: 10, color: AppColors.textMuted)),
+              style: GoogleFonts.inter(fontSize: 10, color: theme.hintColor)),
           const Spacer(),
           Text('Total: ${lb.totalLeaves.toStringAsFixed(0)}',
-              style: GoogleFonts.inter(fontSize: 10, color: AppColors.textMuted)),
+              style: GoogleFonts.inter(fontSize: 10, color: theme.hintColor)),
         ]),
+
       ]),
     );
   }
@@ -377,23 +394,26 @@ class _LeaveRequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final statusColor = _statusColor(req.status);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
+
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(
             child: Text(req.leaveType,
                 style: GoogleFonts.inter(
                     fontSize: 14, fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary)),
+                    color: theme.textTheme.titleMedium?.color)),
           ),
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
@@ -408,13 +428,14 @@ class _LeaveRequestCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           '${_fmtDate(req.fromDate)} → ${_fmtDate(req.toDate)}',
-          style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+          style: GoogleFonts.inter(fontSize: 12, color: theme.textTheme.bodyMedium?.color),
         ),
         if (req.totalDays != null) ...[
           const SizedBox(height: 2),
           Text('${req.totalDays?.toStringAsFixed(0)} day(s)',
-              style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted)),
+              style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor)),
         ],
+
         if (onCancel != null) ...[
           const SizedBox(height: 8),
           Align(
@@ -443,14 +464,18 @@ class _LeaveRequestCard extends StatelessWidget {
   }
 }
 
-Widget _emptyCard(String msg) => Container(
+Widget _emptyCard(BuildContext context, String msg) {
+  final theme = Theme.of(context);
+  return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(18),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.glassBorder),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Text(msg,
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)));
+          style: GoogleFonts.inter(fontSize: 13, color: theme.hintColor)));
+}
+
