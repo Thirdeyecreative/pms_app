@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'constants.dart';
 
 class ApiException implements Exception {
@@ -98,6 +100,41 @@ class ApiClient {
     );
     return _handleResponse(response);
   }
+
+  static Future<dynamic> multipartPost(
+    String path, {
+    required Map<String, String> fields,
+    String? fileKey,
+    String? filePath,
+    String? fileName,
+    bool auth = true,
+  }) async {
+    final url = Uri.parse('$kApiBaseUrl$path');
+    final request = http.MultipartRequest('POST', url);
+
+    if (auth) {
+      final token = await _getToken();
+      if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    request.fields.addAll(fields);
+
+    if (fileKey != null && filePath != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        fileKey,
+        filePath,
+        filename: fileName,
+        contentType: fileName != null && fileName.endsWith('.pdf')
+            ? MediaType('application', 'pdf')
+            : MediaType('image', '*'),
+      ));
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    return _handleResponse(response);
+  }
 }
+
 
 

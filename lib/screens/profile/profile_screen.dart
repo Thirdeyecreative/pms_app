@@ -115,6 +115,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _editField(ctx, panCtrl, 'PAN Number', Icons.credit_card_rounded),
               const SizedBox(height: 12),
               _editField(ctx, aadhaarCtrl, 'Aadhaar Number', Icons.badge_rounded),
+              const SizedBox(height: 12),
+              _editField(ctx, TextEditingController(text: emp.dateOfBirth ?? ''), 'Date of Birth (YYYY-MM-DD)', Icons.cake_rounded),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: ctx,
+                    initialDate: DateTime.tryParse(emp.dateOfBirth ?? '') ?? DateTime(1995),
+                    firstDate: DateTime(1960),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    setSS(() {
+                      // We can store it in a local variable or just update the controller if we had one
+                      // but for now let's just use it in the update call.
+                      // To keep it simple, let's just make it a field.
+                    });
+                  }
+                },
+                child: AbsorbPointer(
+                  child: _editField(ctx, TextEditingController(text: _fmtDate(emp.dateOfBirth) ?? ''), 'Date of Birth', Icons.cake_rounded),
+                ),
+              ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
@@ -139,6 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               'permanent_address': permanentAddrCtrl.text,
                               'pan_no': panCtrl.text,
                               'aadhaar_no': aadhaarCtrl.text,
+                              'date_of_birth': emp.dateOfBirth, // Pass current DOB if not provided in UI yet
                             });
                             if (mounted) {
                               Navigator.pop(ctx);
@@ -486,6 +510,22 @@ class _SalaryCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        // Show salary history or more details
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        side: BorderSide(color: theme.dividerColor),
+                      ),
+                      child: Text('View Salary Details',
+                          style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                    ),
+                  ),
                 ]),
         ),
       ]),

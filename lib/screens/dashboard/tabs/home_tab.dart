@@ -31,28 +31,45 @@ class HomeTab extends StatelessWidget {
           // Quick Actions
           _sectionLabel(context, 'Quick Actions'),
           const SizedBox(height: 10),
-          Row(children: [
-            _QuickAction(
-              icon: Icons.calendar_today_rounded,
-              label: 'Apply Leave',
-              color: AppColors.primary,
-              onTap: () => onApplyLeave?.call(),
-            ),
-            const SizedBox(width: 10),
-            _QuickAction(
-              icon: Icons.receipt_long_rounded,
-              label: 'View Payslip',
-              color: AppColors.accent,
-              onTap: () {},
-            ),
-            const SizedBox(width: 10),
-            _QuickAction(
-              icon: Icons.attach_money_rounded,
-              label: 'Submit Expense',
-              color: AppColors.accentWarm,
-              onTap: () {},
-            ),
-          ]),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: [
+              _QuickAction(
+                icon: Icons.calendar_today_rounded,
+                label: 'Apply Leave',
+                color: AppColors.primary,
+                onTap: () => onApplyLeave?.call(),
+              ),
+              const SizedBox(width: 10),
+              _QuickAction(
+                icon: Icons.history_rounded,
+                label: 'Regularize',
+                color: AppColors.warning,
+                onTap: () {},
+              ),
+              const SizedBox(width: 10),
+              _QuickAction(
+                icon: Icons.receipt_long_rounded,
+                label: 'View Payslip',
+                color: AppColors.accent,
+                onTap: () {},
+              ),
+              const SizedBox(width: 10),
+              _QuickAction(
+                icon: Icons.attach_money_rounded,
+                label: 'Submit Expense',
+                color: AppColors.accentWarm,
+                onTap: () => onApplyLeave?.call(), // Navigate to Expenses tab via parent callback
+              ),
+            ]),
+          ),
+          const SizedBox(height: 20),
+
+          // Pending Tasks (Matching React)
+          _sectionLabel(context, 'Pending Tasks'),
+          const SizedBox(height: 10),
+          _PendingTaskRow(title: 'Submit investment proofs', deadline: '15 Jan 2026', icon: Icons.description_rounded),
+          _PendingTaskRow(title: 'Complete mandatory training', deadline: '20 Jan 2026', icon: Icons.school_rounded),
           const SizedBox(height: 20),
 
           // Attendance Overview
@@ -150,7 +167,8 @@ class _QuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Expanded(
+    return SizedBox(
+      width: 90,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -366,6 +384,45 @@ class _AnnouncementRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis),
           ]),
         ),
+      ]),
+    );
+  }
+}
+
+class _PendingTaskRow extends StatelessWidget {
+  final String title;
+  final String deadline;
+  final IconData icon;
+  const _PendingTaskRow({required this.title, required this.deadline, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.cardTheme.color,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Row(children: [
+        Container(
+          width: 36, height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withAlpha(20),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppColors.primaryLight, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: theme.textTheme.titleMedium?.color)),
+            Text('Deadline: $deadline', style: GoogleFonts.inter(fontSize: 11, color: theme.hintColor)),
+          ]),
+        ),
+        Icon(Icons.chevron_right_rounded, color: theme.hintColor, size: 20),
       ]),
     );
   }

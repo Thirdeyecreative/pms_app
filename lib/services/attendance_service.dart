@@ -12,17 +12,20 @@ class AttendanceService {
     return [];
   }
 
-  Future<void> clockIn() async {
+  Future<void> clockIn(String userId) async {
     final location = await _getLocation();
     await ApiClient.post('/attendance/check-in', body: {
+      'employee_id': userId,
       'location': location,
       'attendance_source': 'mobile',
       'timestamp': DateTime.now().toIso8601String(),
     });
   }
 
-  Future<Map<String, dynamic>> clockOut() async {
-    final data = await ApiClient.post('/attendance/check-out', body: {});
+  Future<Map<String, dynamic>> clockOut(String userId) async {
+    final data = await ApiClient.post('/attendance/check-out', body: {
+      'employee_id': userId,
+    });
     return data ?? {};
   }
 

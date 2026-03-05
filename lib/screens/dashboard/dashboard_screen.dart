@@ -72,6 +72,22 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: CircularProgressIndicator(color: AppColors.primary),
         );
       }
+      if (dash.error != null && dash.employee == null) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 48),
+              const SizedBox(height: 16),
+              Text('Failed to load data', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text(dash.error!, style: GoogleFonts.inter(color: AppColors.textMuted), textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: _loadData, child: const Text('Retry')),
+            ],
+          ),
+        );
+      }
 
       final emp = dash.employee;
       final firstName = emp?.fullName.split(' ').first ?? 'Employee';
@@ -141,7 +157,10 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: TabBarView(
               controller: _tabCtrl,
               children: [
-                HomeTab(dash: dash, onApplyLeave: () => _tabCtrl.animateTo(1)),
+                HomeTab(
+                  dash: dash, 
+                  onApplyLeave: () => _tabCtrl.animateTo(3), // Navigate to Expenses tab
+                ),
                 LeaveTab(dash: dash),
                 PayrollTab(dash: dash),
                 ExpensesTab(dash: dash),

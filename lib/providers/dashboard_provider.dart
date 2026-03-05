@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/employee_model.dart';
 import '../models/attendance_model.dart';
 import '../models/leave_model.dart';
@@ -32,7 +33,9 @@ class DashboardProvider extends ChangeNotifier {
   List<Payslip> _payslips = [];
   List<Announcement> _announcements = [];
   List<ExpenseClaim> _expenses = [];
+  List<ExpenseClaim> _allExpenses = [];
   List<ExpenseCategory> _expenseCategories = [];
+
   List<TaxDeclaration> _taxDeclarations = [];
   List<Form16> _form16s = [];
   List<OvertimeRequest> _otRequests = [];
@@ -58,7 +61,9 @@ class DashboardProvider extends ChangeNotifier {
   List<Payslip> get payslips => _payslips;
   List<Announcement> get announcements => _announcements;
   List<ExpenseClaim> get expenses => _expenses;
+  List<ExpenseClaim> get allExpenses => _allExpenses;
   List<ExpenseCategory> get expenseCategories => _expenseCategories;
+
   List<TaxDeclaration> get taxDeclarations => _taxDeclarations;
   List<Form16> get form16s => _form16s;
   List<OvertimeRequest> get otRequests => _otRequests;
@@ -92,7 +97,9 @@ class DashboardProvider extends ChangeNotifier {
         _payrollService.getMyPayslips().catchError((_) => <Payslip>[]),
         _announcementService.getNoticeboard().catchError((_) => <Announcement>[]),
         _expenseService.getMyClaims().catchError((_) => <ExpenseClaim>[]),
+        _expenseService.getAllClaims().catchError((_) => <ExpenseClaim>[]),
         _expenseService.getCategories().catchError((_) => <ExpenseCategory>[]),
+
         _taxService.getTaxDeclarations().catchError((_) => <TaxDeclaration>[]),
         _taxService.getMyForm16s().catchError((_) => <Form16>[]),
         _overtimeService.getMyRequests().catchError((_) => <OvertimeRequest>[]),
@@ -106,13 +113,15 @@ class DashboardProvider extends ChangeNotifier {
       _payslips = results[4] as List<Payslip>;
       _announcements = results[5] as List<Announcement>;
       _expenses = results[6] as List<ExpenseClaim>;
-      _expenseCategories = results[7] as List<ExpenseCategory>;
-      _taxDeclarations = results[8] as List<TaxDeclaration>;
-      _form16s = results[9] as List<Form16>;
-      _otRequests = results[10] as List<OvertimeRequest>;
+      _allExpenses = results[7] as List<ExpenseClaim>;
+      _expenseCategories = results[8] as List<ExpenseCategory>;
+      _taxDeclarations = results[9] as List<TaxDeclaration>;
+      _form16s = results[10] as List<Form16>;
+      _otRequests = results[11] as List<OvertimeRequest>;
+
 
       // Find active salary structure
-      final allStructures = results[11] as List<SalaryStructure>;
+      final allStructures = results[12] as List<SalaryStructure>;
       final now = DateTime.now();
       final valid = allStructures
           .where((s) {
@@ -173,20 +182,17 @@ class DashboardProvider extends ChangeNotifier {
   }
 
   void _detectClockStatus() {
-    for (final record in _attendanceHistory) {
-      final activeLog = record.logs.firstWhere(
-        (l) => l.isActive,
-        orElse: () => AttendanceLog(checkIn: '', isActive: false),
-      );
-      if (activeLog.isActive) {
-        _isClockedIn = true;
-        _clockInTime = activeLog.checkIn;
-        _startWorkTimer();
-        return;
-      }
-    }
     if (_attendanceHistory.isNotEmpty) {
       _isClockedIn = false;
+      for (final record in _attendanceHistory) {
+        if (record.logs.any((l) => l.isActive)) {
+          final activeLog = record.logs.firstWhere((l) => l.isActive);
+          _isClockedIn = true;
+          _clockInTime = activeLog.checkIn;
+          _startWorkTimer();
+          return;
+        }
+      }
     } else if (_employee != null) {
       _isClockedIn = _employee!.isCheckedIn;
     }
@@ -202,19 +208,23 @@ class DashboardProvider extends ChangeNotifier {
 
   void _computeWorkDuration() {
     int totalMs = 0;
-    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final now = DateTime.now();
+    final today = DateFormat('yyyy-MM-dd').format(now);
 
     for (final record in _attendanceHistory) {
-      if (record.date != today) continue;
+      // Ensure we match the date part correctly
+      final recordDate = record.date.length >= 10 ? record.date.substring(0, 10) : record.date;
+      if (recordDate != today) continue;
+      
       for (final log in record.logs) {
         try {
-          if (log.checkOut != null) {
+          if (log.checkOut != null && log.checkOut!.isNotEmpty) {
             final start = DateTime.parse(log.checkIn).millisecondsSinceEpoch;
             final end = DateTime.parse(log.checkOut!).millisecondsSinceEpoch;
             totalMs += end - start;
           } else if (log.isActive) {
             final start = DateTime.parse(log.checkIn).millisecondsSinceEpoch;
-            totalMs += DateTime.now().millisecondsSinceEpoch - start;
+            totalMs += now.millisecondsSinceEpoch - start;
           }
         } catch (_) {}
       }
@@ -230,7 +240,8 @@ class DashboardProvider extends ChangeNotifier {
     _clockLoading = true;
     notifyListeners();
     try {
-      await _attendanceService.clockIn();
+      final userId = _employee?.id ?? '';
+      await _attendanceService.clockIn(userId);
       _isClockedIn = true;
       _clockInTime = DateTime.now().toIso8601String();
       _attendanceHistory = await _attendanceService.getMyHistory();
@@ -250,7 +261,8 @@ class DashboardProvider extends ChangeNotifier {
     _clockLoading = true;
     notifyListeners();
     try {
-      final result = await _attendanceService.clockOut();
+      final userId = _employee?.id ?? '';
+      final result = await _attendanceService.clockOut(userId);
       _isClockedIn = false;
       _workTimer?.cancel();
       _attendanceHistory = await _attendanceService.getMyHistory();
@@ -298,9 +310,29 @@ class DashboardProvider extends ChangeNotifier {
   // Expense actions
   Future<void> addExpense(ExpenseClaim claim) {
     _expenses = [claim, ..._expenses];
+    _allExpenses = [claim, ..._allExpenses];
     notifyListeners();
     return Future.value();
   }
+
+  Future<void> loadAllExpenses() async {
+    _allExpenses = await _expenseService.getAllClaims();
+    notifyListeners();
+  }
+
+  Future<void> updateExpenseStatus(String id, String status, {String? summary}) async {
+    final updated = await _expenseService.updateClaimStatus(id, status, summary: summary);
+    final idx = _allExpenses.indexWhere((e) => e.id == id);
+    if (idx != -1) {
+      _allExpenses[idx] = updated;
+    }
+    final myIdx = _expenses.indexWhere((e) => e.id == id);
+    if (myIdx != -1) {
+      _expenses[myIdx] = updated;
+    }
+    notifyListeners();
+  }
+
 
   // Tax actions
   Future<void> deleteTaxDeclaration(String id) async {
