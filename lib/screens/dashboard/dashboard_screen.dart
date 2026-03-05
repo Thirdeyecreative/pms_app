@@ -253,8 +253,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _handleClockAction(DashboardProvider dash) async {
+    final wasClockedIn = dash.isClockedIn;
     Map<String, dynamic>? result;
-    if (dash.isClockedIn) {
+    if (wasClockedIn) {
       result = await dash.clockOut();
     } else {
       result = await dash.clockIn();
@@ -270,7 +271,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       final m = mins % 60;
       _showSnack('Overtime detected: ${h}h ${m}m! Submitted automatically.', AppColors.warning);
     } else {
-      final msg = dash.isClockedIn
+      final msg = wasClockedIn
           ? 'Clocked out successfully 👋'
           : 'Clocked in successfully 🚀';
       _showSnack(msg, AppColors.success);

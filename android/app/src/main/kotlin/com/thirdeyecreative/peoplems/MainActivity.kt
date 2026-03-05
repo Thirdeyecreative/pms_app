@@ -1,4 +1,4 @@
-package com.example.pms_app
+package com.thirdeyecreative.peoplems
 
 import io.flutter.embedding.android.FlutterActivity
 
